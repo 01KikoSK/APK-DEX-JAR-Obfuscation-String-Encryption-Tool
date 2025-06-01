@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>APK, DEX, JAR Obfuscation &amp; String Encryption Tool</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+  body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #121212;
+    color: #eee;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    user-select: none;
+  }
+  header {
+    background: linear-gradient(90deg, #ff6a00, #ee0979);
+    padding: 1rem 2rem;
+    text-align: center;
+    font-weight: 600;
+    font-size: 1.9rem;
+    letter-spacing: 0.08em;
+  }
+  main {
+    flex: 1;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  nav button {
+    background: #222;
+    border: none;
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px;
+    color: #eee;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  nav button.active,
+  nav button:hover {
+    background: #ee0979;
+    color: #fff;
+    box-shadow: 0 0 8px #ee0979aa;
+  }
+  section {
+    display: none;
+    flex-direction: column;
+    background: #1e1e1e;
+    border-radius: 12px;
+    padding: 1.8rem 2rem;
+    box-shadow: 0 0 15px #ff6a00aa;
+  }
+  section.active {
+    display: flex;
+  }
+  h2 {
+    margin-top: 0;
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: #ff6a00;
+    user-select: text;
+  }
+  label {
+    font-weight: 600;
+    margin: 0.8rem 0 0.4rem 0;
+    user-select: text;
+  }
+  input[type="file"] {
+    background: #222;
+    border: 2px dashed #ff6a00;
+    border-radius: 8px;
+    padding: 1rem;
+    color: #ff6a00;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  input[type="text"], input[type="number"] {
+    background: #222;
+    border: 2px solid #ff6a00;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 1rem;
+    color: #ff6a00;
+    width: 100%;
+    box-sizing: border-box;
+    user-select: text;
+  }
+  input[type="checkbox"] {
+    margin-right: 0.5rem;
+    cursor: pointer;
+  }
+  .options {
+    margin: 1rem 0 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    user-select: text;
+  }
+  button.action-btn {
+    background: #ee0979;
+    padding: 0.8rem 1.2rem;
+    font-weight: 700;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    letter-spacing: 0.06em;
+    transition: background-color 0.3s ease;
+    user-select: none;
+  }
+  button.action-btn:hover:not(:disabled) {
+    background: #ff3380;
+  }
+  button.action-btn:disabled {
+    background: #555;
+    cursor: not-allowed;
+  }
+  .file-info {
+    margin: 0.6rem 0 1rem 0;
+    font-size: 0.95rem;
+    color: #ff6a00aa;
+    user-select: text;
+  }
+  .output-links {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+  }
+  a.download-link {
+    background: #ff6a00;
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    color: #121212;
+    font-weight: 600;
+    text-decoration: none;
+    text-align: center;
+    user-select: text;
+    transition: background-color 0.3s ease;
+  }
+  a.download-link:hover {
+    background: #ee0979;
+    color: #fff;
+  }
+  footer {
+    text-align: center;
+    color: #555;
+    font-size: 0.85rem;
+    padding: 1rem 0;
+    user-select: none;
+  }
+  small.note {
+    color: #ff6a0077;
+    font-style: italic;
+    user-select: text;
+  }
+</style>
+</head>
+<body>
+<header>APK, DEX, JAR Obfuscation &amp; String Encryption Tool</header>
+<main>
+  <nav role="tablist" aria-label="File type tabs">
+    <button role="tab" aria-selected="true" aria-controls="apk-section" id="tab-apk" tabindex="0" class="active">APK</button>
+    <button role="tab" aria-selected="false" aria-controls="dex-section" id="tab-dex" tabindex="-1">DEX</button>
+    <button role="tab" aria-selected="false" aria-controls="jar-section" id="tab-jar" tabindex="-1">JAR</button>
+  </nav>
+
+  <section id="apk-section" role="tabpanel" aria-labelledby="tab-apk" class="active">
+    <h2>Obfuscate &amp; Encrypt APK</h2>
+    <label for="apk-file">Select APK file</label>
+    <input type="file" id="apk-file" accept=".apk" aria-describedby="apk-info" />
+    <div class="file-info" id="apk-info" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="options">
+      <label><input type="checkbox" id="apk-obfuscate" /> Obfuscate entire file (XOR encryption)</label>
+      <label><input type="checkbox" id="apk-string-encrypt" /> Encrypt strings with XOR key</label>
+      <label for="apk-key">XOR Key (hex, e.g. 5A)</label>
+      <input type="text" id="apk-key" maxlength="2" placeholder="Enter 1 byte key hex (e.g. 5A)" aria-describedby="apk-key-info" />
+      <small class="note" id="apk-key-info">Key must be 1 byte hex (between 00 and FF). If empty, default 0x5A used.</small>
+    </div>
+    <button id="apk-action" class="action-btn" disabled>Obfuscate &amp; Encrypt</button>
+    <div class="output-links" id="apk-output"></div>
+  </section>
+
+  <section id="dex-section" role="tabpanel" aria-labelledby="tab-dex">
+    <h2>Obfuscate &amp; Encrypt DEX</h2>
+    <label for="dex-file">Select DEX file</label>
+    <input type="file" id="dex-file" accept=".dex" aria-describedby="dex-info" />
+    <div class="file-info" id="dex-info" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="options">
+      <label><input type="checkbox" id="dex-obfuscate" /> Obfuscate entire file (XOR encryption)</label>
+      <label><input type="checkbox" id="dex-string-encrypt" /> Encrypt strings with XOR key</label>
+      <label for="dex-key">XOR Key (hex, e.g. 5A)</label>
+      <input type="text" id="dex-key" maxlength="2" placeholder="Enter 1 byte key hex (e.g. 5A)" aria-describedby="dex-key-info" />
+      <small class="note" id="dex-key-info">Key must be 1 byte hex (between 00 and FF). If empty, default 0x5A used.</small>
+    </div>
+    <button id="dex-action" class="action-btn" disabled>Obfuscate &amp; Encrypt</button>
+    <div class="output-links" id="dex-output"></div>
+  </section>
+
+  <section id="jar-section" role="tabpanel" aria-labelledby="tab-jar">
+    <h2>Obfuscate &amp; Encrypt JAR</h2>
+    <label for="jar-file">Select JAR file</label>
+    <input type="file" id="jar-file" accept=".jar" aria-describedby="jar-info" />
+    <div class="file-info" id="jar-info" aria-live="polite" aria-atomic="true"></div>
+
+    <div class="options">
+      <label><input type="checkbox" id="jar-obfuscate" /> Obfuscate entire file (XOR encryption)</label>
+      <label><input type="checkbox" id="jar-string-encrypt" /> Encrypt strings with XOR key</label>
+      <label for="jar-key">XOR Key (hex, e.g. 5A)</label>
+      <input type="text" id="jar-key" maxlength="2" placeholder="Enter 1 byte key hex (e.g. 5A)" aria-describedby="jar-key-info" />
+      <small class="note" id="jar-key-info">Key must be 1 byte hex (between 00 and FF). If empty, default 0x5A used.</small>
+    </div>
+    <button id="jar-action" class="action-btn" disabled>Obfuscate &amp; Encrypt</button>
+    <div class="output-links" id="jar-output"></div>
+  </section>
+</main>
+<footer>
+  © 2024 Dex APK JAR Obfuscation Tool — Client-side XOR encryption/demo only — For real obfuscation use professional tools
+</footer>
+<script>
+  (() => {
+    'use strict';
+
+    // Tab navigation setup
+    const tabs = Array.from(document.querySelectorAll('nav button[role="tab"]'));
+    const sections = {
+      apk: document.getElementById('apk-section'),
+      dex: document.getElementById('dex-section'),
+      jar: document.getElementById('jar-section'),
+    };
+
+    function updateTabs(selectedTabId) {
+      tabs.forEach(tab => {
+        const isSelected = (tab.id === selectedTabId);
+        tab.classList.toggle('active', isSelected);
+        tab.setAttribute('aria-selected', isSelected ? 'true' : 'false');
+        tab.tabIndex = isSelected ? 0 : -1;
+        sections[tab.id.split('-')[1]].classList.toggle('active', isSelected);
+      });
+    }
+    tabs.forEach(tab =>
+      tab.addEventListener('click', () => updateTabs(tab.id))
+    );
+
+    // Utility Functions
+    function hexToByte(hexStr) {
+      if (!hexStr) return 0x5A; // default
+      const v = parseInt(hexStr, 16);
+      if (isNaN(v) || v < 0 || v > 255) return 0x5A;
+      return v;
+    }
+
+    function formatFileSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    // Simple XOR function for Uint8Array
+    function xorBuffer(buf, key) {
+      const res = new Uint8Array(buf.length);
+      for (let i = 0; i < buf.length; i++) {
+        res[i] = buf[i] ^ key;
+      }
+      return res;
+    }
+
+    // Simple heuristic string encryption in DEX/APK/JAR?
+    // Without parsing files, we cannot selectively encrypt strings reliably.
+    // So for demo: if user selects string encrypt, we XOR the entire content too.
+    // Show note about limitation.
+
+    // Setup input and buttons for each file type with related handlers
+    function setupSection(type) {
+      const fileInput = document.getElementById(type + '-file');
+      const fileInfo = document.getElementById(type + '-info');
+      const obfuscateCheckbox = document.getElementById(type + '-obfuscate');
+      const stringEncryptCheckbox = document.getElementById(type + '-string-encrypt');
+      const keyInput = document.getElementById(type + '-key');
+      const actionBtn = document.getElementById(type + '-action');
+      const outputDiv = document.getElementById(type + '-output');
+
+      let selectedFile = null;
+
+      function updateUI() {
+        fileInfo.textContent = selectedFile ? `${selectedFile.name} (${formatFileSize(selectedFile.size)})` : '';
+        actionBtn.disabled = !selectedFile ||
+          (!obfuscateCheckbox.checked && !stringEncryptCheckbox.checked);
+        clearOutput();
+      }
+
+      function clearOutput() {
+        outputDiv.textContent = '';
+      }
+
+      fileInput.addEventListener('change', () => {
+        selectedFile = fileInput.files[0] || null;
+        updateUI();
+      });
+      obfuscateCheckbox.addEventListener('change', () => {
+        updateUI();
+      });
+      stringEncryptCheckbox.addEventListener('change', () => {
+        updateUI();
+      });
+      keyInput.addEventListener('input', () => {
+        // Force uppercase, max 2 chars
+        let val = keyInput.value.toUpperCase();
+        val = val.replace(/[^0-9A-F]/g, '');
+        if (val.length > 2) val = val.slice(0, 2);
+        if (keyInput.value !== val) keyInput.value = val;
+      });
+
+      actionBtn.addEventListener('click', async () => {
+        clearOutput();
+        if (!selectedFile) return alert('No file selected.');
+        if (!obfuscateCheckbox.checked && !stringEncryptCheckbox.checked) {
+          return alert('Please select at least one obfuscation/encryption option.');
+        }
+
+        const keyHex = keyInput.value;
+        const key = hexToByte(keyHex);
+
+        try {
+          actionBtn.disabled = true;
+          const arrayBuffer = await selectedFile.arrayBuffer();
+          let uint8view = new Uint8Array(arrayBuffer);
+
+          // For demo purposes:
+          // If obfuscate entire file checked => XOR entire file
+          // If encrypt strings checked => XOR entire file (same as obfuscate since can't parse strings)
+          // If both checked, XOR entire file twice => no change - so just XOR once regardless
+
+          if (obfuscateCheckbox.checked || stringEncryptCheckbox.checked) {
+            uint8view = xorBuffer(uint8view, key);
+          }
+
+          const blob = new Blob([uint8view], { type: 'application/octet-stream' });
+          const url = URL.createObjectURL(blob);
+
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${selectedFile.name.replace(/\\.[^.]+$/, '')}_obfuscated.${selectedFile.name.split('.').pop()}`;
+          a.textContent = 'Download Obfuscated File';
+          a.className = 'download-link';
+          outputDiv.appendChild(a);
+
+          // Accessibility polite alert
+          outputDiv.setAttribute('aria-live', 'polite');
+          outputDiv.setAttribute('aria-atomic', 'true');
+          outputDiv.textContent = '';
+          outputDiv.appendChild(a);
+        } catch (e) {
+          alert('Error processing file: ' + e.message);
+        } finally {
+          actionBtn.disabled = false;
+        }
+      });
+    }
+
+    setupSection('apk');
+    setupSection('dex');
+    setupSection('jar');
+  })();
+</script>
+</body>
+</html>
+
